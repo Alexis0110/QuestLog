@@ -1,0 +1,44 @@
+# Standard Symfony
+/var/
+/vendor/
+/node_modules/
+/public/build/
+/.env
+.env.local
+.env.*.local
+/.idea/
+/*.log
+*.sqlite
+*.sqlite3
+/public/uploads/
+/public/temp/
+/config/secrets/*
+
+# PHPStorm / VSCode / IDEs
+/.vscode/
+/.idea/
+
+# Composer
+composer.lock
+
+# NPM/Yarn
+yarn.lock
+package-lock.json
+
+# Symfony cache und Logs
+/var/cache/
+/var/log/
+
+# Database dumps
+*.sql
+*.dump
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+
