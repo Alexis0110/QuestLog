@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ gameName }} | QuestLog{% endblock %}
+
+{% block body %}
+<!-- Großer Bild-Hintergrund -->
+<div class="relative bg-gray-100 min-h-[75vh] flex items-center justify-center p-8">
+
+    {% if imageUrl %}
+    <div 
+        class="absolute inset-0 bg-center bg-cover opacity-70 rounded"
+        style="background-image: url('{{ imageUrl }}');"
+    ></div>
+    {% endif %}
+
+    <!-- Card über dem Bild -->
+    <div class="relative bg-white bg-opacity-90 backdrop-blur-md p-8 rounded shadow-xl w-full md:w-2/3 max-w-2xl flex flex-col items-center space-y-6">
+
+    <!-- Neuer Back-Button oben links -->
+    <a href="{{ path('steam_profile') }}" 
+       class="absolute top-4 left-4 flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition font-semibold text-sm shadow">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+    </a>
+
+    <!-- Überschrift -->
+    <h1 class="text-4xl font-bold text-gray-600 text-center">{{ gameName }}</h1>
+
+    <!-- Achievements -->
+    <p class="text-gray-700 text-lg text-center">
+        <span class="font-semibold text-gray-500">Achievements:</span>
+        {{ achievementsCount }}
+    </p>
+
+</div>
+
+
+</div>
+{% endblock %}

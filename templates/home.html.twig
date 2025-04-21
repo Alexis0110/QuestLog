@@ -1,43 +1,28 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>QuestLog</title>
-</head>
-<body class="font-sans bg-gray-100">
+{% extends 'base.html.twig' %}
 
-<header class="flex items-center justify-between p-4 relative bg-white shadow">
-    <div class="flex text-5xl font-bold">
-        <div class="text-blue-600">Quest</div>
-        <div class="text-orange-500">Log</div>
-    </div>
+{% block title %}QuestLog - Spiele{% endblock %}
 
-    {% if username is defined %}
-    <div class="absolute left-1/2 top-4 transform -translate-x-1/2">
-      <div class="text-2xl font-semibold text-gray-700">{{ username }}</div>
-    </div>
-    {% endif %}
-</header>
+{% block body %}
+<form method="post" action="{{ path('steam_profile') }}" class="space-y-4 mb-6">
+    <input type="text" name="steam_profile" placeholder="Dein Steam Profil-Link" class="border p-2 w-1/2 rounded" required>
+    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500">Profil abrufen</button>
+</form>
 
-<main class="p-6">
-    <form method="post" action="{{ path('steam_profile') }}" class="space-y-4 mb-6">
-        <input type="text" name="steam_profile" placeholder="Dein Steam Profil-Link" class="border p-2 w-full rounded" required>
-        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Profil abrufen</button>
-    </form>
-
-    <table id="gamesTable" class="table-auto w-full bg-white shadow rounded">
-        <thead>
-            <tr class="bg-gray-200">
-                <th id="headerName" class="px-4 py-2 cursor-pointer">Spiel &#x25B2;</th>
-                <th id="headerAchievements" class="px-4 py-2 cursor-pointer">Achievements &#x25B2;</th>
-            </tr>
-        </thead>
-        <tbody id="gamesBody">
-            <!-- Spiele werden hier mit JavaScript eingefügt -->
-        </tbody>
-    </table>
-</main>
+<table id="gamesTable" class="table-auto w-full bg-white rounded shadow-md overflow-hidden">
+    <thead class="bg-gray-300 text-gray-600">
+        <tr>
+            <th id="headerName" class="px-6 py-3 text-left cursor-pointer select-none">
+                Spiel <span id="arrowName">▲</span>
+            </th>
+            <th id="headerAchievements" class="px-6 py-3 text-left cursor-pointer select-none">
+                Achievements <span id="arrowAchievements"></span>
+            </th>
+        </tr>
+    </thead>
+    <tbody id="gamesBody" class="text-gray-700">
+        <!-- Spiele werden dynamisch eingefügt -->
+    </tbody>
+</table>
 
 <script>
 let pendingAchievements = [];
@@ -49,17 +34,31 @@ if (steamId) {
         .then(response => response.json())
         .then(games => {
             games.forEach(game => {
-    const row = document.createElement('tr');
-    row.setAttribute('data-game-id', game.id);
-    row.innerHTML = `
-        <td class="px-4 py-2">${game.name}</td>
-        <td class="px-4 py-2 achievements" data-percent="0">Laden...</td>
-    `;
-    tbody.appendChild(row);
+                const row = document.createElement('tr');
+                row.setAttribute('data-game-id', game.id);
+                row.innerHTML = `
+    <td class="cursor-pointer px-3 py-1">
+        <div class="flex items-center space-x-3">
+            <img src="https://cdn.cloudflare.steamstatic.com/steam/apps/${game.steamId}/capsule_sm_120.jpg" 
+                 alt="${game.name}" 
+                 class="w-30 h-18 object-cover rounded">
+            <div class="text-gray-600 font-semibold">${game.name}</div>
+        </div>
+    </td>
+    <td class="cursor-pointer px-3 py-2 text-right">
+        <div class="achievements text-gray-600 text-sm" data-percent="0">Laden...</div>
+    </td>
+`;
 
-    // <<< HIER FIX
-    pendingAchievements.push({ steamId: steamId, gameId: game.id, row });
+row.classList.add('hover:bg-blue-50', 'transition', 'duration-200', 'cursor-pointer');
+
+row.addEventListener('click', () => {
+    window.location.href = `/game/${game.steamId}`;
 });
+                tbody.appendChild(row);
+
+                pendingAchievements.push({ steamId: steamId, gameId: game.id, row });
+            });
 
             loadNextAchievements();
         });
@@ -87,42 +86,74 @@ function loadNextAchievements() {
         });
 }
 
-// Tabellen Sortierung (optional)
 document.addEventListener('DOMContentLoaded', function() {
     const headerName = document.getElementById('headerName');
     const headerAchievements = document.getElementById('headerAchievements');
+    const arrowName = document.getElementById('arrowName');
+    const arrowAchievements = document.getElementById('arrowAchievements');
 
     let sortColumn = 'name';
-    let sortDirection = 'asc';
+    let sortDirection = 'asc'; // 'asc' oder 'desc'
+
+    function updateSortIcons() {
+        arrowName.innerHTML = '';
+        arrowAchievements.innerHTML = '';
+
+        if (sortColumn === 'name') {
+            arrowName.innerHTML = sortDirection === 'asc' ? '▲' : '▼';
+        } else if (sortColumn === 'achievements') {
+            arrowAchievements.innerHTML = sortDirection === 'asc' ? '▲' : '▼';
+        }
+    }
 
     function sortTable() {
-        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const rows = Array.from(document.querySelectorAll('#gamesBody tr'));
+
         rows.sort((a, b) => {
-            let aVal = sortColumn === 'name' ? a.children[0].textContent.trim().toLowerCase() : parseFloat(a.children[1].dataset.percent);
-            let bVal = sortColumn === 'name' ? b.children[0].textContent.trim().toLowerCase() : parseFloat(b.children[1].dataset.percent);
+            let aVal, bVal;
+            if (sortColumn === 'name') {
+                aVal = a.children[0].innerText.trim().toLowerCase();
+                bVal = b.children[0].innerText.trim().toLowerCase();
+            } else if (sortColumn === 'achievements') {
+                aVal = parseFloat(a.querySelector('.achievements').dataset.percent) || 0;
+                bVal = parseFloat(b.querySelector('.achievements').dataset.percent) || 0;
+            }
+
             if (sortDirection === 'asc') {
                 return aVal > bVal ? 1 : -1;
             } else {
                 return aVal < bVal ? 1 : -1;
             }
         });
+
+        const tbody = document.getElementById('gamesBody');
         tbody.innerHTML = '';
         rows.forEach(row => tbody.appendChild(row));
     }
 
     headerName.addEventListener('click', () => {
-        sortColumn = 'name';
-        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        if (sortColumn === 'name') {
+            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortColumn = 'name';
+            sortDirection = 'asc';
+        }
+        updateSortIcons();
         sortTable();
     });
 
     headerAchievements.addEventListener('click', () => {
-        sortColumn = 'achievements';
-        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        if (sortColumn === 'achievements') {
+            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortColumn = 'achievements';
+            sortDirection = 'asc';
+        }
+        updateSortIcons();
         sortTable();
     });
+
+    updateSortIcons(); // Initial
 });
 </script>
-
-</body>
-</html>
+{% endblock %}

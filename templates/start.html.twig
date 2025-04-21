@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>QuestLog - Start</title>
+    <style>
+        .logo-transition {
+            transition: all 1s ease;
+        }
+        .logo-start {
+            position: absolute;
+            top: 32%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .logo-end {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            transform: translate(0, 0);
+        }
+        .fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col justify-center items-center overflow-hidden">
+
+    <div class="text-center">
+        <div id="logo" class="text-6xl font-bold mb-6 logo-transition logo-start">
+            <span class="text-blue-600">Quest</span><span class="text-orange-500">Log</span>
+        </div>
+
+        <form id="steam-form" method="post" action="{{ path('steam_profile') }}" class="space-y-4 mt-30 transition-all duration-700">
+            <input type="text" name="steam_profile" placeholder="Dein Steam Profil-Link" class="border p-3 w-80 rounded text-center" required>
+            <div>
+                <button type="submit" class="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600 transition">Profil abrufen</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('steam-form');
+            const logo = document.getElementById('logo');
+
+            form.addEventListener('submit', function (e) {
+                // Logo in die Ecke animieren
+                logo.classList.remove('logo-start');
+                logo.classList.add('logo-end');
+
+                // Formular ausblenden (Animation)
+                form.classList.add('fade-out');
+            });
+        });
+    </script>
+
+</body>
+</html>
