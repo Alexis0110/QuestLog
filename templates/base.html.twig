@@ -1,60 +1,31 @@
 <!DOCTYPE html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>{% block title %}QuestLog{% endblock %}</title>
-    <style>
-    #logoHeader.centered {
-        justify-content: center;
-        padding-top: 20vh;
-        padding-bottom: 20vh;
-    }
+	<head>
+		<meta charset="UTF-8">
+		<script src="https://cdn.tailwindcss.com"></script>
+		<title>
+			{% block title %}QuestLog
+			{% endblock %}
+		</title>
+	</head>
+	<body class="bg-gray-50 min-h-screen flex flex-col">
 
-    #logo.centered {
-        font-size: 6rem;
-    }
+		<header id="logoHeader" class="flex items-center justify-between px-8 py-6 bg-white shadow-md transition-all duration-1000">
+			<a href="{{ path('steam_profile')}}" id="logo" class="flex text-5xl font-bold transition-all duration-1000">
+				<div class="text-blue-600">Quest</div>
+				<div class="text-orange-500">Log</div>
+			</a>
 
-    #logoHeader, #logo {
-        transition: all 1s ease-in-out;
-    }
-</style>
-</head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
-
-<header id="logoHeader" class="flex items-center justify-between px-8 py-6 bg-white shadow-md transition-all duration-1000">
-    <div id="logo" class="flex text-5xl font-bold transition-all duration-1000">
-        <div class="text-blue-600">Quest</div>
-        <div class="text-orange-500">Log</div>
-    </div>
-
-    {% if username is defined %}
-    <div class="absolute left-1/2 top-7 transform -translate-x-1/2 text-center">
-    <div class="inline-block bg-gray-300 text-gray-600 text-lg font-semibold px-4 py-1 rounded shadow-sm">
-        Profil: {{ username }}
-    </div>
-</div>
-    {% endif %}
-</header>
-
-<main class="flex-1 container mx-auto p-6">
-    {% block body %}{% endblock %}
-</main>
-
-</body>
-</html>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const logoHeader = document.getElementById('logoHeader');
-    const logo = document.getElementById('logo');
-
-    {% if app.request.get('_route') == 'start_page' %}
-        logoHeader.classList.add('centered');
-        logo.classList.add('centered');
-    {% else %}
-        logoHeader.classList.remove('centered');
-        logo.classList.remove('centered');
-    {% endif %}
-});
-</script>
+			{% if username is defined %}
+				<div class="absolute left-1/2 top-7 transform -translate-x-1/2 text-center">
+					<div class="inline-block bg-gray-300 text-gray-600 text-lg font-semibold px-4 py-1 rounded shadow-sm">
+						Profile:
+						{{ username }}
+					</div>
+				</div>
+			{% endif %}
+		</header>
+		<main class="flex-1 container mx-auto p-6"> {% block body %}{% endblock %}
+			</main>
+		</body>
+	</html>

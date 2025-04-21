@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>QuestLog - Start</title>
+    <title>QuestLog</title>
     <style>
         .logo-transition {
             transition: all 1s ease;
@@ -34,9 +34,9 @@
         </div>
 
         <form id="steam-form" method="post" action="{{ path('steam_profile') }}" class="space-y-4 mt-30 transition-all duration-700">
-            <input type="text" name="steam_profile" placeholder="Dein Steam Profil-Link" class="border p-3 w-80 rounded text-center" required>
+            <input type="text" name="steam_profile" placeholder="Your Steam Profil URL" class="border p-3 w-80 rounded text-center" required>
             <div>
-                <button type="submit" class="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600 transition">Profil abrufen</button>
+                <button type="submit" class="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600 transition">Retrieve profile</button>
             </div>
         </form>
     </div>
@@ -47,11 +47,10 @@
             const logo = document.getElementById('logo');
 
             form.addEventListener('submit', function (e) {
-                // Logo in die Ecke animieren
+
                 logo.classList.remove('logo-start');
                 logo.classList.add('logo-end');
 
-                // Formular ausblenden (Animation)
                 form.classList.add('fade-out');
             });
         });

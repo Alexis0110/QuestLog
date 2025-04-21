@@ -11,6 +11,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
+use function PHPSTORM_META\type;
+
 class SteamController extends AbstractController
 {
     private HttpClientInterface $client;
@@ -26,14 +28,13 @@ class SteamController extends AbstractController
     #[Route('/', name: 'start_page')]
     public function start(SessionInterface $session): Response
     {
-        // Datenbank und Session löschen
         $this->clearDatabase();
         $session->clear();
 
         return $this->render('start.html.twig');
     }
 
-    #[Route('/steam', name: 'steam_profile', methods: ['GET', 'POST'])]
+    #[Route('/profile', name: 'steam_profile', methods: ['GET', 'POST'])]
     public function steamProfile(Request $request, SessionInterface $session): Response
     {
         if ($request->isMethod('POST')) {
@@ -42,13 +43,11 @@ class SteamController extends AbstractController
     
             if ($steamId) {
                 try {
-                    // Benutzername holen
                     $profileResponse = $this->client->request('GET', "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={$this->steamApiKey}&steamids={$steamId}");
                     $profileData = $profileResponse->toArray();
     
-                    // Existiert der Account überhaupt?
                     if (empty($profileData['response']['players'])) {
-                        // Account existiert nicht ➔ Zurück auf Startseite
+
                         return $this->render('start.html.twig', [
                             'error' => 'Profil nicht gefunden.',
                         ]);
@@ -56,41 +55,34 @@ class SteamController extends AbstractController
     
                     $personaname = $profileData['response']['players'][0]['personaname'] ?? 'Unbekannt';
     
-                    // Spiele holen
                     $gamesResponse = $this->client->request('GET', "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={$this->steamApiKey}&steamid={$steamId}&format=json&include_appinfo=true");
                     $gamesData = $gamesResponse->toArray();
     
                     if (empty($gamesData['response']['games'])) {
-                        // Keine Spiele ➔ Zurück auf Startseite
                         return $this->render('start.html.twig', [
                             'error' => 'Keine Spiele gefunden.',
                         ]);
                     }
     
-                    // Wenn alles OK, Session speichern
                     $session->set('steamId', $steamId);
                     $session->set('username', $personaname);
     
-                    // Direkt Spiele speichern
                     return $this->redirectToRoute('fetch_steam_games', [
                         'steamId' => $steamId,
                     ]);
     
                 } catch (\Exception $e) {
-                    // Fehler bei API-Call ➔ Zurück auf Startseite
                     return $this->render('start.html.twig', [
                         'error' => 'Fehler beim Abrufen der Steam-Daten.',
                     ]);
                 }
             } else {
-                // Ungültiger Link ➔ Zurück auf Startseite
                 return $this->render('start.html.twig', [
                     'error' => 'Ungültiger Steam-Link.',
                 ]);
             }
         }
-    
-        // GET Request: Normale Home-Seite anzeigen
+
         $steamId = $session->get('steamId');
         $username = $session->get('username');
     
@@ -155,22 +147,48 @@ class SteamController extends AbstractController
     public function gameDetails(string $steamId, SessionInterface $session): Response
     {
         try {
-            $data = $this->client->request('GET', "https://store.steampowered.com/api/appdetails?appids={$steamId}")->toArray();
-            $appData = $data[$steamId]['data'] ?? [];
-
+            //app data
+            $response = $this->client->request('GET', "https://store.steampowered.com/api/appdetails?appids={$steamId}");
+            $data = $response->toArray();
+            $appData = $data[$steamId]['data'] ?? null;
+    
+            $gameName = $appData['name'] ?? 'Unbekanntes Spiel';
+            $imageUrl = $appData['header_image'] ?? null;
+            $achievementsCount = $appData['achievements']['total'] ?? 0;
+    
+            // Player achievements
+            $unlocked = 0;
+            $steamIdUser = $session->get('steamId');
+    
+            try {
+                $playerResponse = $this->client->request('GET', "http://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/?key={$this->steamApiKey}&steamid={$steamIdUser}&appid={$steamId}");
+                $playerData = $playerResponse->toArray();
+    
+                foreach ($playerData['playerstats']['achievements'] ?? [] as $achievement) {
+                    if ($achievement['achieved'] == 1) {
+                        $unlocked++;
+                    }
+                }
+            } catch (\Exception $e) {
+                $unlocked = 0;
+            }
+    
             return $this->render('game_details.html.twig', [
                 'steamId' => $steamId,
-                'gameName' => $appData['name'] ?? 'Unbekanntes Spiel',
-                'imageUrl' => $appData['header_image'] ?? null,
-                'achievementsCount' => $appData['achievements']['total'] ?? 'Keine Daten',
+                'gameName' => $gameName,
+                'imageUrl' => $imageUrl,
+                'achievementsCount' => $achievementsCount,
+                'achievementsUnlocked' => $unlocked,
                 'username' => $session->get('username'),
             ]);
-        } catch (\Exception) {
+    
+        } catch (\Exception $e) {
             return $this->render('game_details.html.twig', [
                 'steamId' => $steamId,
                 'gameName' => 'Fehler beim Laden',
                 'imageUrl' => null,
-                'achievementsCount' => 'Fehler',
+                'achievementsCount' => 0,
+                'achievementsUnlocked' => 0,
                 'username' => $session->get('username'),
             ]);
         }

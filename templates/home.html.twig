@@ -1,48 +1,56 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}QuestLog - Spiele{% endblock %}
+{% block title %}QuestLog
+{% endblock %}
 
 {% block body %}
-<form method="post" action="{{ path('steam_profile') }}" class="space-y-4 mb-6">
-    <input type="text" name="steam_profile" placeholder="Dein Steam Profil-Link" class="border p-2 w-1/2 rounded" required>
-    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500">Profil abrufen</button>
-</form>
+	<form method="post" action="{{ path('steam_profile') }}" class="space-y-4 mb-6">
+		<input type="text" name="steam_profile" placeholder="Your Steam Profil URL" class="border p-2 w-1/2 rounded" required>
+		<button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500">Retrieve profile</button>
+	</form>
 
-<table id="gamesTable" class="table-auto w-full bg-white rounded shadow-md overflow-hidden">
-    <thead class="bg-gray-300 text-gray-600">
-        <tr>
-            <th id="headerName" class="px-6 py-3 text-left cursor-pointer select-none">
-                Spiel <span id="arrowName">▲</span>
-            </th>
-            <th id="headerAchievements" class="px-6 py-3 text-left cursor-pointer select-none">
-                Achievements <span id="arrowAchievements"></span>
-            </th>
-        </tr>
-    </thead>
-    <tbody id="gamesBody" class="text-gray-700">
-        <!-- Spiele werden dynamisch eingefügt -->
-    </tbody>
-</table>
+	<table id="gamesTable" class="table-auto w-full bg-white rounded shadow-md overflow-hidden">
+		<thead class="bg-gray-300 text-gray-600">
+			<tr>
+				<th id="headerName" class="px-6 py-3 text-left cursor-pointer select-none">
+					Game
+					<span id="arrowName">▲</span>
+				</th>
+				<th id="headerAchievements" class="px-6 py-3 text-left cursor-pointer select-none">
+					Achievements
+					<span id="arrowAchievements"></span>
+				</th>
+			</tr>
+		</thead>
+		<tbody
+			id="gamesBody" class="text-gray-700">
+            <!-- dynamic table. games are added through script -->
+		</tbody>
+	</table>
 
-<script>
-let pendingAchievements = [];
+	<script>
+		let pendingAchievements = [];
 let steamId = "{{ steamId|default('') }}";
 const tbody = document.getElementById('gamesBody');
 
 if (steamId) {
-    fetch(`/fetch-all-games/${steamId}`)
-        .then(response => response.json())
-        .then(games => {
-            games.forEach(game => {
-                const row = document.createElement('tr');
-                row.setAttribute('data-game-id', game.id);
-                row.innerHTML = `
+fetch (`/fetch-all-games/${steamId}`).then(response => response.json()).then(games => {
+games.forEach(game => {
+const row = document.createElement('tr');
+row.setAttribute('data-game-id', game.id);
+row.innerHTML = `
     <td class="cursor-pointer px-3 py-1">
         <div class="flex items-center space-x-3">
-            <img src="https://cdn.cloudflare.steamstatic.com/steam/apps/${game.steamId}/capsule_sm_120.jpg" 
-                 alt="${game.name}" 
+            <img src="https://cdn.cloudflare.steamstatic.com/steam/apps/${
+game.steamId
+}/capsule_sm_120.jpg" 
+                 alt="${
+game.name
+}" 
                  class="w-30 h-18 object-cover rounded">
-            <div class="text-gray-600 font-semibold">${game.name}</div>
+            <div class="text-gray-600 font-semibold">${
+game.name
+}</div>
         </div>
     </td>
     <td class="cursor-pointer px-3 py-2 text-right">
@@ -53,107 +61,106 @@ if (steamId) {
 row.classList.add('hover:bg-blue-50', 'transition', 'duration-200', 'cursor-pointer');
 
 row.addEventListener('click', () => {
-    window.location.href = `/game/${game.steamId}`;
+window.location.href = `/game/${
+game.steamId
+}`;
 });
-                tbody.appendChild(row);
+tbody.appendChild(row);
 
-                pendingAchievements.push({ steamId: steamId, gameId: game.id, row });
-            });
+pendingAchievements.push({steamId: steamId, gameId: game.id, row});
+});
 
-            loadNextAchievements();
-        });
+loadNextAchievements();
+});
 }
 
 function loadNextAchievements() {
-    if (pendingAchievements.length === 0) return;
+if (pendingAchievements.length === 0) 
+return;
 
-    const { steamId, gameId, row } = pendingAchievements.shift();
 
-    fetch(`/fetch-achievements-batch/${steamId}/${gameId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.progress) {
-                row.querySelector('.achievements').textContent = data.progress;
-                row.querySelector('.achievements').dataset.percent = data.percent;
-            } else {
-                row.querySelector('.achievements').textContent = 'Has No Achievements';
-            }
-            loadNextAchievements();
-        })
-        .catch(error => {
-            row.querySelector('.achievements').textContent = 'Fehler';
-            loadNextAchievements();
-        });
+const {steamId, gameId, row} = pendingAchievements.shift();
+
+fetch(`/fetch-achievements-batch/${steamId}/${gameId}`).then(response => response.json()).then(data => {
+if (data.progress) {
+row.querySelector('.achievements').textContent = data.progress;
+row.querySelector('.achievements').dataset.percent = data.percent;
+} else {
+row.querySelector('.achievements').textContent = 'Has No Achievements';
+} loadNextAchievements();
+}).catch(error => {
+row.querySelector('.achievements').textContent = 'Fehler';
+loadNextAchievements();
+});
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const headerName = document.getElementById('headerName');
-    const headerAchievements = document.getElementById('headerAchievements');
-    const arrowName = document.getElementById('arrowName');
-    const arrowAchievements = document.getElementById('arrowAchievements');
+document.addEventListener('DOMContentLoaded', function () {
+const headerName = document.getElementById('headerName');
+const headerAchievements = document.getElementById('headerAchievements');
+const arrowName = document.getElementById('arrowName');
+const arrowAchievements = document.getElementById('arrowAchievements');
 
-    let sortColumn = 'name';
-    let sortDirection = 'asc'; // 'asc' oder 'desc'
+let sortColumn = 'name';
+let sortDirection = 'asc'; // 'asc' oder 'desc'
 
-    function updateSortIcons() {
-        arrowName.innerHTML = '';
-        arrowAchievements.innerHTML = '';
+function updateSortIcons() {
+arrowName.innerHTML = '';
+arrowAchievements.innerHTML = '';
 
-        if (sortColumn === 'name') {
-            arrowName.innerHTML = sortDirection === 'asc' ? '▲' : '▼';
-        } else if (sortColumn === 'achievements') {
-            arrowAchievements.innerHTML = sortDirection === 'asc' ? '▲' : '▼';
-        }
-    }
+if (sortColumn === 'name') {
+arrowName.innerHTML = sortDirection === 'asc' ? '▲' : '▼';
+} else if (sortColumn === 'achievements') {
+arrowAchievements.innerHTML = sortDirection === 'asc' ? '▲' : '▼';
+}
+}
 
-    function sortTable() {
-        const rows = Array.from(document.querySelectorAll('#gamesBody tr'));
+function sortTable() {
+const rows = Array.from(document.querySelectorAll('#gamesBody tr'));
 
-        rows.sort((a, b) => {
-            let aVal, bVal;
-            if (sortColumn === 'name') {
-                aVal = a.children[0].innerText.trim().toLowerCase();
-                bVal = b.children[0].innerText.trim().toLowerCase();
-            } else if (sortColumn === 'achievements') {
-                aVal = parseFloat(a.querySelector('.achievements').dataset.percent) || 0;
-                bVal = parseFloat(b.querySelector('.achievements').dataset.percent) || 0;
-            }
+rows.sort((a, b) => {
+let aVal,
+bVal;
+if (sortColumn === 'name') {
+aVal = a.children[0].innerText.trim().toLowerCase();
+bVal = b.children[0].innerText.trim().toLowerCase();
+} else if (sortColumn === 'achievements') {
+aVal = parseFloat(a.querySelector('.achievements').dataset.percent) || 0;
+bVal = parseFloat(b.querySelector('.achievements').dataset.percent) || 0;
+}
 
-            if (sortDirection === 'asc') {
-                return aVal > bVal ? 1 : -1;
-            } else {
-                return aVal < bVal ? 1 : -1;
-            }
-        });
-
-        const tbody = document.getElementById('gamesBody');
-        tbody.innerHTML = '';
-        rows.forEach(row => tbody.appendChild(row));
-    }
-
-    headerName.addEventListener('click', () => {
-        if (sortColumn === 'name') {
-            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            sortColumn = 'name';
-            sortDirection = 'asc';
-        }
-        updateSortIcons();
-        sortTable();
-    });
-
-    headerAchievements.addEventListener('click', () => {
-        if (sortColumn === 'achievements') {
-            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            sortColumn = 'achievements';
-            sortDirection = 'asc';
-        }
-        updateSortIcons();
-        sortTable();
-    });
-
-    updateSortIcons(); // Initial
+if (sortDirection === 'asc') {
+return aVal > bVal ? 1 : -1;
+} else {
+return aVal < bVal ? 1 : -1;
+}
 });
-</script>
+
+const tbody = document.getElementById('gamesBody');
+tbody.innerHTML = '';
+rows.forEach(row => tbody.appendChild(row));
+}
+
+headerName.addEventListener('click', () => {
+if (sortColumn === 'name') {
+sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+} else {
+sortColumn = 'name';
+sortDirection = 'asc';
+} updateSortIcons();
+sortTable();
+});
+
+headerAchievements.addEventListener('click', () => {
+if (sortColumn === 'achievements') {
+sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+} else {
+sortColumn = 'achievements';
+sortDirection = 'asc';
+} updateSortIcons();
+sortTable();
+});
+
+updateSortIcons(); // Initial
+});
+	</script>
 {% endblock %}
