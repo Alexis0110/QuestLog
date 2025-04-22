@@ -4,13 +4,19 @@
 {% endblock %}
 
 {% block body %}
-	<form method="post" action="{{ path('steam_profile') }}" class="space-y-4 mb-6">
-		<input type="text" name="steam_profile" placeholder="Change Your Steam Profil URL" class="border p-2 w-1/2 rounded" required>
-		<button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500">Retrieve profile</button>
-	</form>
+<div class="mb-4 flex justify-start">
+    <input 
+        type="text" 
+        id="searchInput"
+        placeholder="Search for a game..." 
+        class="border p-2 rounded w-full md:w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-500  bg-white text-gray-800 
+           dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 
+           placeholder-gray-400 dark:placeholder-gray-500"
+    >
+</div>
 
-	<table id="gamesTable" class="table-auto w-full bg-white rounded shadow-md overflow-hidden">
-		<thead class="bg-gray-300 text-gray-600">
+	<table id="gamesTable" class="table-auto w-full bg-white dark:bg-gray-800 rounded shadow-md overflow-hidden">
+		<thead class=" bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100">
 			<tr>
 				<th id="headerName" class="px-6 py-3 text-left cursor-pointer select-none">
 					Game
@@ -48,17 +54,17 @@ game.steamId
 game.name
 }" 
                  class="w-30 h-18 object-cover rounded">
-            <div class="text-gray-600 font-semibold">${
+            <div class="text-gray-800 dark:text-gray-100 font-semibold">${
 game.name
 }</div>
         </div>
     </td>
     <td class="cursor-pointer px-3 py-2 text-right">
-        <div class="achievements text-gray-600 text-sm" data-percent="0">Laden...</div>
+        <div class="achievements text-gray-800 dark:text-gray-100 text-sm" data-percent="0">Laden...</div>
     </td>
 `;
 
-row.classList.add('hover:bg-blue-50', 'transition', 'duration-200', 'cursor-pointer');
+row.classList.add('hover:bg-blue-50', 'dark:hover:bg-gray-700', 'transition', 'duration-200', 'cursor-pointer');
 
 row.addEventListener('click', () => {
 window.location.href = `/game/${
@@ -160,7 +166,25 @@ sortDirection = 'asc';
 sortTable();
 });
 
-updateSortIcons(); // Initial
+updateSortIcons();
 });
-	</script>
+
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+
+    searchInput.addEventListener('input', function () {
+        const filter = searchInput.value.toLowerCase();
+        const rows = document.querySelectorAll('#gamesBody tr');
+
+        rows.forEach(row => {
+            const gameName = row.querySelector('td div div').textContent.toLowerCase();
+            if (gameName.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

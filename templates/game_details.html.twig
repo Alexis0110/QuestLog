@@ -6,24 +6,24 @@
 {% endblock %}
 
 {% block body %}
-	<div class="relative bg-gray-100 min-h-[75vh] flex items-center justify-center p-8">
+	<div class="relative bg-gray-100 dark:bg-gray-900 min-h-[75vh] flex items-center justify-center p-8">
 
 		{% if imageUrl %}
 			<div class="absolute inset-0 bg-center bg-cover opacity-70 rounded" style="background-image: url('{{ imageUrl }}');"></div>
 		{% endif %}
 
-		<div class="relative bg-white bg-opacity-90 backdrop-blur-md p-8 rounded shadow-xl w-full md:w-2/3 max-w-2xl flex flex-col items-center space-y-8">
+		<div class="relative bg-white dark:bg-gray-800 bg-opacity-90 backdrop-blur-md p-8 rounded shadow-xl w-full md:w-2/3 max-w-2xl flex flex-col items-center space-y-8">
 
-			<a href="{{ path('steam_profile') }}" class="absolute top-4 left-4 flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition font-semibold text-sm shadow">
+			<a href="{{ path('steam_profile') }}" class="absolute top-4 left-4 flex items-center space-x-2 bg-blue-600 dark:bg-blue-500 text-white dark:text-gray-800 px-4 py-2 rounded hover:bg-blue-600 transition font-semibold text-sm shadow">
 				<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
 				</svg>
 			</a>
 
-			<h1 class="text-4xl font-bold text-gray-600 text-center">{{ gameName }}</h1>
+			<h1 class="text-4xl font-bold text-gray-600 dark:text-gray-100 text-center">{{ gameName }}</h1>
 
 			<div class="w-full flex justify-center">
-    <div class="bg-blue-100 text-blue-800 px-6 py-4 rounded-lg shadow-md flex flex-col items-center space-y-2 w-full md:w-2/3">
+    <div class="bg-gray-100 dark:bg-gray-900 text-blue-600 dark:text-blue-500 px-6 py-4 rounded-lg shadow-md flex flex-col items-center space-y-2 w-full md:w-2/3">
         <div class="text-lg font-semibold">Achievements</div>
 
         {% if achievementsCount > 0 %}

@@ -7,25 +7,76 @@
 			{% block title %}QuestLog
 			{% endblock %}
 		</title>
+        <script>
+    // Direkt beim allerersten Parsen checken
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  </script>
+        <script>
+    tailwind.config = {
+        darkMode: 'class',
+        theme: {
+            extend: {}
+        }
+    }
+</script>
 	</head>
-	<body class="bg-gray-50 min-h-screen flex flex-col">
+	<body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col">
 
-		<header id="logoHeader" class="flex items-center justify-between px-8 py-6 bg-white shadow-md transition-all">
+		<header id="logoHeader" class="fixed top-0 left-0 w-full flex items-center justify-between px-8 py-6 bg-white dark:bg-gray-800 shadow-md transition-all z-50">
 			<a href="{{ path('steam_profile')}}" id="logo" class="flex text-6xl font-bold transition-all">
-				<div class="text-blue-600">Quest</div>
-				<div class="text-orange-500">Log</div>
+				<div class="text-blue-600 dark:text-blue-500">Quest</div>
+				<div class="text-orange-500 dark:text-orange-400">Log</div>
 			</a>
 
 			{% if username is defined %}
 				<div class="absolute left-1/2 top-7 transform -translate-x-1/2 text-center">
-					<div class="inline-block bg-gray-300 text-gray-600 text-lg font-semibold px-4 py-1 rounded shadow-sm">
+					<div class="inline-block bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-lg font-semibold px-4 py-1 rounded shadow-sm">
 						Profile:
 						{{ username }}
 					</div>
 				</div>
 			{% endif %}
+            <div class="flex items-center space-x-4">
+
+			<button id="toggleDarkMode" class="bg-blue-600 dark:bg-blue-500 text-white dark:text-gray-800 px-4 py-2 rounded">
+            Dark Mode
+        </button>
+
+        <a class="bg-blue-600 dark:bg-blue-500 text-white dark:text-gray-800 px-4 py-2 rounded hover:bg-blue-500" href="{{ path('start_page') }}">
+            Change Profile
+        </a>
+    </div>
+
+
 		</header>
-		<main class="flex-1 container mx-auto p-6"> {% block body %}{% endblock %}
+		<main class="flex-1 container mx-auto pt-32"> {% block body %}{% endblock %}
 			</main>
+
+
+			<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleButton = document.getElementById('toggleDarkMode');
+    const htmlElement = document.documentElement;
+
+    if (localStorage.getItem('theme') === 'dark') {
+        htmlElement.classList.add('dark');
+    } else {
+        htmlElement.classList.remove('dark');
+    }
+
+    toggleButton.addEventListener('click', function () {
+        htmlElement.classList.toggle('dark');
+        if (htmlElement.classList.contains('dark')) {
+            localStorage.setItem('theme', 'dark');
+        } else {
+            localStorage.setItem('theme', 'light');
+        }
+    });
+});
+</script>
 		</body>
 	</html>

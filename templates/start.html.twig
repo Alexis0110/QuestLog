@@ -27,17 +27,19 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 h-screen flex flex-col justify-center items-center overflow-hidden">
+<body class="bg-gray-100 dark:bg-gray-900 h-screen flex flex-col justify-center items-center overflow-hidden">
 
     <div class="text-center">
         <div id="logo" class="text-6xl font-bold mb-6 logo-transition logo-start">
-            <span class="text-blue-600">Quest</span><span class="text-orange-500">Log</span>
+            <span class="text-blue-600 dark:text-blue-500">Quest</span><span class="text-orange-500 dark:text-orange-400">Log</span>
         </div>
 
         <form id="steam-form" method="post" action="{{ path('steam_profile') }}" class="space-y-2 mt-5 transition-all duration-700">
-            <input type="text" name="steam_profile" placeholder="Your Steam Profil URL" class="border p-3 w-80 rounded text-center" required>
+            <input type="text" name="steam_profile" placeholder="Your Steam Profil URL" class="border p-3 w-80 rounded text-center bg-white text-gray-800 
+           dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 
+           placeholder-gray-400 dark:placeholder-gray-500" required>
             <div>
-                <button type="submit" class="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600 transition">Retrieve profile</button>
+                <button type="submit" class="bg-blue-600 text-white dark:bg-blue-500 dark:text-gray-800 px-6 py-3 rounded hover:bg-blue-600 transition">Retrieve profile</button>
             </div>
         </form>
     </div>
