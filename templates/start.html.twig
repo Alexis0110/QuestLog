@@ -9,15 +9,16 @@
             transition: all 1s ease;
         }
         .logo-start {
-            position: absolute;
-            top: 32%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, calc(-50% - 90px));
+    transition: transform 1s ease;
+}
         .logo-end {
             position: absolute;
-            top: 1rem;
-            left: 1rem;
+            top: 1.5rem;
+            left: 2rem;
             transform: translate(0, 0);
         }
         .fade-out {
@@ -33,7 +34,7 @@
             <span class="text-blue-600">Quest</span><span class="text-orange-500">Log</span>
         </div>
 
-        <form id="steam-form" method="post" action="{{ path('steam_profile') }}" class="space-y-4 mt-30 transition-all duration-700">
+        <form id="steam-form" method="post" action="{{ path('steam_profile') }}" class="space-y-2 mt-5 transition-all duration-700">
             <input type="text" name="steam_profile" placeholder="Your Steam Profil URL" class="border p-3 w-80 rounded text-center" required>
             <div>
                 <button type="submit" class="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600 transition">Retrieve profile</button>
